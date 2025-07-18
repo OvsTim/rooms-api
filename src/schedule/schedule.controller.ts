@@ -87,14 +87,14 @@ export class ScheduleController {
       if (schedules?.length === 0) {
         return this.scheduleService.editSchedule(id, dto);
       }
-
-      for (const existingSchedule of schedules) {
-        if (
-          dto.roomId &&
-          existingSchedule.roomId !== dto.roomId &&
-          areDatesEqual(existingSchedule.date, dto.date)
-        ) {
-          throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
+      if (dto.roomId !== undefined) {
+        for (const existingSchedule of schedules) {
+          if (
+            existingSchedule.roomId !== dto.roomId &&
+            areDatesEqual(existingSchedule.date, dto.date)
+          ) {
+            throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
+          }
         }
       }
     }

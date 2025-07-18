@@ -14,7 +14,7 @@ export class ScheduleService {
   async create(dto: CreateScheduleDto): Promise<ScheduleModel> {
     return this.scheduleModel.create(dto);
   }
-  async delete(id: string): Promise<ScheduleModel | null> {
+  async delete(id: Types.ObjectId): Promise<ScheduleModel | null> {
     return this.scheduleModel.findByIdAndDelete(id).exec();
   }
   async getScheduleById(id: Types.ObjectId): Promise<ScheduleModel | null> {
