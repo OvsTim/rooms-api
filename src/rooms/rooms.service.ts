@@ -17,7 +17,7 @@ export class RoomsService {
   async delete(id: string): Promise<RoomModel | null> {
     return this.roomModel.findByIdAndDelete(id).exec();
   }
-  async getRoomById(id: string): Promise<RoomModel | null> {
+  async getRoomById(id: Types.ObjectId): Promise<RoomModel | null> {
     return this.roomModel.findOne({ _id: new Types.ObjectId(id) }).exec();
   }
   async getAllRooms(): Promise<RoomModel[]> {

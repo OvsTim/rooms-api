@@ -16,6 +16,7 @@ import { ROOM_SCHEDULED, SCHEDULE_NOT_FOUND } from './schedule-constants';
 import { ScheduleModel } from './schedule.model';
 import { areDatesEqual } from '../utils/dateUtils';
 import { ROOM_NOT_FOUND } from '../rooms/room-constants';
+import { Types } from 'mongoose';
 
 @Controller('schedule')
 export class ScheduleController {
@@ -65,6 +66,7 @@ export class ScheduleController {
     if (!schedule) {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
+    return await this.scheduleService.delete(id);
   }
   @Patch(':id')
   async patch(@Param('id') id: string, @Body() dto: Partial<ScheduleModel>) {
@@ -75,7 +77,7 @@ export class ScheduleController {
     return this.scheduleService.editSchedule(id, dto);
   }
   @Get('byRoom/:roomId')
-  async get(@Param('roomId') id: string) {
+  async get(@Param('roomId') id: Types.ObjectId) {
     return this.scheduleService.getScheduleByRoomId(id);
   }
 }

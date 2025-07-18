@@ -44,7 +44,7 @@ export class RoomsController {
     if (!room) {
       throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
-    await this.scheduleService.deleteScheduleByRoomId(id);
+    return await this.scheduleService.deleteScheduleByRoomId(id);
   }
   @Patch(':id')
   async patch(@Param('id') id: string, @Body() dto: Partial<RoomModel>) {
