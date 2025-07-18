@@ -29,7 +29,7 @@ export class ScheduleService {
   ): Promise<ScheduleModel[] | null> {
     return this.scheduleModel.find({ roomId: new Types.ObjectId(id) }).exec();
   }
-  async deleteScheduleByRoomId(id: string) {
+  async deleteScheduleByRoomId(id: Types.ObjectId) {
     return this.scheduleModel
       .deleteMany({ roomId: new Types.ObjectId(id) })
       .exec();

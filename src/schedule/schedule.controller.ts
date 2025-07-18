@@ -77,6 +77,21 @@ export class ScheduleController {
     if (!schedule) {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
+    if (dto.date) {
+      const schedules = await this.scheduleService.getScheduleByRoomId(
+        schedule.roomId,
+      );
+      if (schedules?.length === 0) {
+        return this.scheduleService.editSchedule(id, dto);
+      }
+
+      for (const schedule of schedules) {
+        if (areDatesEqual(schedule.date, dto.date)) {
+          throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
+        }
+      }
+    }
+
     return this.scheduleService.editSchedule(id, dto);
   }
   @Get('byRoom/:roomId')

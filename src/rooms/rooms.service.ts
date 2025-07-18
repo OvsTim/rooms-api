@@ -14,7 +14,7 @@ export class RoomsService {
   async create(createRoomDto: CreateRoomDto): Promise<RoomModel> {
     return this.roomModel.create(createRoomDto);
   }
-  async delete(id: string): Promise<RoomModel | null> {
+  async delete(id: Types.ObjectId): Promise<RoomModel | null> {
     return this.roomModel.findByIdAndDelete(id).exec();
   }
   async getRoomById(id: Types.ObjectId): Promise<RoomModel | null> {

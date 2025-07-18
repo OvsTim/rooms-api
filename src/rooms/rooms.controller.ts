@@ -28,7 +28,7 @@ export class RoomsController {
   }
 
   @Get(':id')
-  async getRoom(@Param('id') id: string) {
+  async getRoom(@Param('id') id: Types.ObjectId) {
     const room = await this.roomsService.getRoomById(id);
     if (!room) {
       throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -40,7 +40,7 @@ export class RoomsController {
     return this.roomsService.getAllRooms();
   }
   @Delete(':id')
-  async deleteRoom(@Param('id') id: string) {
+  async deleteRoom(@Param('id') id: Types.ObjectId) {
     const room = await this.roomsService.delete(id);
     if (!room) {
       throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
