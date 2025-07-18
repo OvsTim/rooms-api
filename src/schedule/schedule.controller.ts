@@ -80,21 +80,31 @@ export class ScheduleController {
     if (!schedule) {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
-    if (dto.date) {
+    if (dto.date !== undefined) {
       const schedules = await this.scheduleService.getScheduleByRoomId(
         schedule.roomId,
       );
-      if (schedules?.length === 0) {
-        return this.scheduleService.editSchedule(id, dto);
-      }
-      if (dto.roomId !== undefined) {
+      if (schedules && schedules?.length>0 ) {
         for (const existingSchedule of schedules) {
           if (
-            existingSchedule.roomId !== dto.roomId &&
             areDatesEqual(existingSchedule.date, dto.date)
           ) {
             throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
           }
+        }
+      }
+    }
+
+    if (dto.roomId !== undefined && dto.date!==undefined) {
+      const schedules = await this.scheduleService.getScheduleByRoomId(
+        schedule.roomId,
+      );
+      for (const existingSchedule of schedules) {
+        if (
+          existingSchedule.roomId !== dto.roomId &&
+          areDatesEqual(existingSchedule.date, dto.date)
+        ) {
+          throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
         }
       }
     }
