@@ -29,7 +29,7 @@ export class ScheduleService {
   }
   async deleteScheduleByRoomId(id: string) {
     return this.scheduleModel
-      .findByIdAndDelete({ roomId: new Types.ObjectId(id) })
+      .deleteMany({ roomId: new Types.ObjectId(id) })
       .exec();
   }
 

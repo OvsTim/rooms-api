@@ -15,6 +15,7 @@ import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { ROOM_SCHEDULED, SCHEDULE_NOT_FOUND } from './schedule-constants';
 import { ScheduleModel } from './schedule.model';
 import { areDatesEqual } from '../utils/dateUtils';
+import { ROOM_NOT_FOUND } from '../rooms/room-constants';
 
 @Controller('schedule')
 export class ScheduleController {
@@ -25,10 +26,15 @@ export class ScheduleController {
 
   @Post('create')
   async createSchedule(@Body() dto: CreateScheduleDto) {
+    const room = await this.roomsService.getRoomById(dto.roomId);
+    if (!room) {
+      throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
     const schedules = await this.scheduleService.getScheduleByRoomId(
       dto.roomId,
     );
-    if (!schedules) {
+    if (schedules?.length === 0) {
       return this.scheduleService.create(dto);
     }
 

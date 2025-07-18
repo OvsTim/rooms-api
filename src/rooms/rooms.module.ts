@@ -3,12 +3,12 @@ import { RoomsController } from './rooms.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RoomModel, RoomSchema } from './rooms.model';
 import { RoomsService } from './rooms.service';
-import { ScheduleService } from '../schedule/schedule.service';
+import { ScheduleModule } from '../schedule/schedule.module';
 
 @Module({
   controllers: [RoomsController],
   imports: [
-    ScheduleService,
+    ScheduleModule,
     MongooseModule.forFeature([
       {
         name: RoomModel.name,
