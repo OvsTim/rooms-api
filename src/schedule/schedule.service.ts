@@ -26,7 +26,7 @@ export class ScheduleService {
 
   async getScheduleByRoomId(
     id: Types.ObjectId,
-  ): Promise<ScheduleModel[] | null> {
+  ) {
     return this.scheduleModel.find({ roomId: new Types.ObjectId(id) }).exec();
   }
   async deleteScheduleByRoomId(id: Types.ObjectId) {
