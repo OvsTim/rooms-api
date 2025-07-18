@@ -49,7 +49,7 @@ export class ScheduleController {
   }
 
   @Get(':id')
-  async getSchedule(@Param('id') id: string) {
+  async getSchedule(@Param('id') id: Types.ObjectId) {
     const schedule = await this.scheduleService.getScheduleById(id);
     if (!schedule) {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -85,8 +85,11 @@ export class ScheduleController {
         return this.scheduleService.editSchedule(id, dto);
       }
 
-      for (const schedule of schedules) {
-        if (areDatesEqual(schedule.date, dto.date)) {
+      for (const existingSchedule of schedules) {
+        if (
+          existingSchedule.roomId !== dto.roomId &&
+          areDatesEqual(existingSchedule.date, dto.date)
+        ) {
           throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
         }
       }
