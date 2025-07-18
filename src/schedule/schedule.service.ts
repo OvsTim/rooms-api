@@ -18,7 +18,7 @@ export class ScheduleService {
     return this.scheduleModel.findByIdAndDelete(id).exec();
   }
   async getScheduleById(id: string): Promise<ScheduleModel | null> {
-    return this.scheduleModel.findOne({ id: new Types.ObjectId(id) }).exec();
+    return this.scheduleModel.findOne({ _id: new Types.ObjectId(id) }).exec();
   }
   async getAllSchedules(): Promise<ScheduleModel[]> {
     return this.scheduleModel.find({}).exec();
@@ -38,7 +38,7 @@ export class ScheduleService {
     schedule: Partial<ScheduleModel>,
   ): Promise<ScheduleModel | null> {
     return this.scheduleModel
-      .findByIdAndUpdate({ id: new Types.ObjectId(id), schedule })
+      .findByIdAndUpdate(new Types.ObjectId(id), schedule)
       .exec();
   }
 }

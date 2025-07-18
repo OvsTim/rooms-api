@@ -18,7 +18,7 @@ export class RoomsService {
     return this.roomModel.findByIdAndDelete(id).exec();
   }
   async getRoomById(id: string): Promise<RoomModel | null> {
-    return this.roomModel.findOne({ id: new Types.ObjectId(id) }).exec();
+    return this.roomModel.findOne({ _id: new Types.ObjectId(id) }).exec();
   }
   async getAllRooms(): Promise<RoomModel[]> {
     return this.roomModel.find({}).exec();
@@ -29,7 +29,7 @@ export class RoomsService {
     room: Partial<RoomModel>,
   ): Promise<RoomModel | null> {
     return this.roomModel
-      .findByIdAndUpdate({ id: new Types.ObjectId(id), room })
+      .findByIdAndUpdate(new Types.ObjectId(id), room)
       .exec();
   }
 }

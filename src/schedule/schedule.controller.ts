@@ -14,6 +14,7 @@ import { RoomsService } from '../rooms/rooms.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { ROOM_SCHEDULED, SCHEDULE_NOT_FOUND } from './schedule-constants';
 import { ScheduleModel } from './schedule.model';
+import { areDatesEqual } from '../utils/dateUtils';
 
 @Controller('schedule')
 export class ScheduleController {
@@ -68,7 +69,7 @@ export class ScheduleController {
     return this.scheduleService.editSchedule(id, dto);
   }
   @Get('byRoom/:roomId')
-  async get(@Param('id') id: string) {
+  async get(@Param('roomId') id: string) {
     return this.scheduleService.getScheduleByRoomId(id);
   }
 }
