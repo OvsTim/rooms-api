@@ -88,8 +88,10 @@ export class ScheduleController {
       }
     }
     if (dto.roomId !== undefined || dto.date !== undefined) {
+      const targetRoomId =
+        dto.roomId !== undefined ? dto.roomId : schedule.roomId;
       const schedules = await this.scheduleService.getScheduleByRoomId(
-        schedule.roomId,
+        targetRoomId, // Проверяем целевую комнату
       );
       for (const existingSchedule of schedules) {
         const targetRoomId =
