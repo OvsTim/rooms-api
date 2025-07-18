@@ -36,7 +36,7 @@ export class ScheduleService {
   }
 
   async editSchedule(
-    id: string,
+    id: Types.ObjectId,
     schedule: Partial<ScheduleModel>,
   ): Promise<ScheduleModel | null> {
     return this.scheduleModel

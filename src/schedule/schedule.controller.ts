@@ -63,7 +63,7 @@ export class ScheduleController {
   }
 
   @Delete(':id')
-  async deleteSchedule(@Param('id') id: string) {
+  async deleteSchedule(@Param('id') id: Types.ObjectId) {
     const schedule = await this.scheduleService.delete(id);
     if (!schedule) {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -72,7 +72,10 @@ export class ScheduleController {
   }
 
   @Patch(':id')
-  async patch(@Param('id') id: string, @Body() dto: Partial<ScheduleModel>) {
+  async patch(
+    @Param('id') id: Types.ObjectId,
+    @Body() dto: Partial<ScheduleModel>,
+  ) {
     const schedule = await this.scheduleService.getScheduleById(id);
     if (!schedule) {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -87,6 +90,7 @@ export class ScheduleController {
 
       for (const existingSchedule of schedules) {
         if (
+          dto.roomId &&
           existingSchedule.roomId !== dto.roomId &&
           areDatesEqual(existingSchedule.date, dto.date)
         ) {
