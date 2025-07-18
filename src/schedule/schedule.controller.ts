@@ -56,18 +56,21 @@ export class ScheduleController {
     }
     return schedule;
   }
+
   @Get()
   async getAllSchedules(): Promise<ScheduleModel[]> {
     return this.scheduleService.getAllSchedules();
   }
+
   @Delete(':id')
   async deleteSchedule(@Param('id') id: string) {
     const schedule = await this.scheduleService.delete(id);
     if (!schedule) {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
-    return await this.scheduleService.delete(id);
+    return schedule;
   }
+
   @Patch(':id')
   async patch(@Param('id') id: string, @Body() dto: Partial<ScheduleModel>) {
     const schedule = await this.scheduleService.getScheduleById(id);

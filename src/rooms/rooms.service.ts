@@ -25,7 +25,7 @@ export class RoomsService {
   }
 
   async editRoom(
-    id: string,
+    id: Types.ObjectId,
     room: Partial<RoomModel>,
   ): Promise<RoomModel | null> {
     return this.roomModel

@@ -14,6 +14,7 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { ROOM_NOT_FOUND } from './room-constants';
 import { RoomModel } from './rooms.model';
 import { ScheduleService } from '../schedule/schedule.service';
+import { Types } from 'mongoose';
 
 @Controller('rooms')
 export class RoomsController {
@@ -47,7 +48,10 @@ export class RoomsController {
     return await this.scheduleService.deleteScheduleByRoomId(id);
   }
   @Patch(':id')
-  async patch(@Param('id') id: string, @Body() dto: Partial<RoomModel>) {
+  async patch(
+    @Param('id') id: Types.ObjectId,
+    @Body() dto: Partial<RoomModel>,
+  ) {
     const room = await this.roomsService.getRoomById(id);
     if (!room) {
       throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
