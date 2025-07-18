@@ -45,7 +45,7 @@ export class ScheduleController {
       }
     }
 
-    return this.scheduleService.create(dto);
+    return await this.scheduleService.create(dto);
   }
 
   @Get(':id')
