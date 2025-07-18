@@ -81,14 +81,22 @@ export class ScheduleController {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
+    if (dto.roomId !== undefined) {
+      const room = await this.roomsService.getRoomById(dto.roomId);
+      if (!room) {
+        throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
+      }
+    }
     if (dto.roomId !== undefined || dto.date !== undefined) {
       const schedules = await this.scheduleService.getScheduleByRoomId(
         schedule.roomId,
       );
       for (const existingSchedule of schedules) {
+        const targetRoomId =
+          dto.roomId !== undefined ? dto.roomId : schedule.roomId;
         if (
           existingSchedule._id.toString() !== id.toString() &&
-          existingSchedule.roomId === dto.roomId &&
+          existingSchedule.roomId.toString() === targetRoomId.toString() &&
           dto.date &&
           areDatesEqual(existingSchedule.date, dto.date)
         ) {
