@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ScheduleController } from './schedule.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModel, ScheduleSchema } from './schedule.model';
@@ -8,7 +8,7 @@ import { RoomsModule } from '../rooms/rooms.module';
 @Module({
   controllers: [ScheduleController],
   imports: [
-    RoomsModule,
+    forwardRef(() => RoomsModule),
     MongooseModule.forFeature([
       {
         name: ScheduleModel.name,
