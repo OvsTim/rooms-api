@@ -45,7 +45,6 @@ export class ScheduleController {
       }
     }
 
-    // 4. Если конфликтов нет - создаём бронирование
     return await this.scheduleService.create(dto);
   }
 
@@ -62,10 +61,7 @@ export class ScheduleController {
   async getAllSchedules(): Promise<ScheduleModel[]> {
     return this.scheduleService.getAllSchedules();
   }
-  @Get('raw/:roomId')
-  async raw(@Param('roomId') roomId: string) {
-    return this.scheduleService.rawMongoQuery(roomId);
-  }
+
   @Delete(':id')
   async deleteSchedule(@Param('id') id: Types.ObjectId) {
     const schedule = await this.scheduleService.getScheduleById(id);
@@ -80,36 +76,38 @@ export class ScheduleController {
     @Param('id') id: Types.ObjectId,
     @Body() dto: Partial<ScheduleModel>,
   ) {
-    const schedule = await this.scheduleService.getScheduleById(id);
-    if (!schedule) {
+    const currentSchedule = await this.scheduleService.getScheduleById(id);
+    if (!currentSchedule) {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
     if (dto.roomId !== undefined) {
-      const room = await this.roomsService.getRoomById(
+      const roomExists = await this.roomsService.getRoomById(
         new Types.ObjectId(dto.roomId),
       );
-      if (!room) {
+      if (!roomExists) {
         throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
       }
     }
+
+    const targetRoomId =
+      dto.roomId !== undefined ? dto.roomId : currentSchedule.roomId;
+    const targetDate = dto.date !== undefined ? dto.date : currentSchedule.date;
+
     if (dto.roomId !== undefined || dto.date !== undefined) {
-      const targetRoomId =
-        dto.roomId !== undefined ? dto.roomId : schedule.roomId;
-      const schedules = await this.scheduleService.getScheduleByRoomId(
-        new Types.ObjectId(targetRoomId), // Проверяем целевую комнату
+      const roomSchedules = await this.scheduleService.getScheduleByRoomId(
+        new Types.ObjectId(targetRoomId),
       );
-      for (const existingSchedule of schedules) {
-        const targetRoomId =
-          dto.roomId !== undefined ? dto.roomId : schedule.roomId;
-        if (
-          existingSchedule._id.toString() !== id.toString() &&
-          existingSchedule.roomId.toString() === targetRoomId.toString() &&
-          dto.date &&
-          areDatesEqual(existingSchedule.date, dto.date)
-        ) {
-          throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
-        }
+
+      const hasConflict = roomSchedules.some((schedule) => {
+        // Пропускаем текущее бронирование
+        if (schedule._id.equals(id)) return false;
+
+        return areDatesEqual(schedule.date, targetDate);
+      });
+
+      if (hasConflict) {
+        throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
       }
     }
 

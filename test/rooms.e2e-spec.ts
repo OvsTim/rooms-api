@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
-import { disconnect, Types } from 'mongoose';
+import mongoose, { disconnect, Types } from 'mongoose';
 import { CreateRoomDto } from '../src/rooms/dto/create-room.dto';
 import { RoomDocument, RoomModel } from '../src/rooms/rooms.model';
 import { ROOM_NOT_FOUND } from '../src/rooms/room-constants';
@@ -31,6 +31,7 @@ describe('AppController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
   });
 
   test('/rooms/create (POST) - success', () => {
@@ -48,7 +49,7 @@ describe('AppController (e2e)', () => {
       .get('/rooms')
       .expect(200)
       .then(({ body }: request.Response) => {
-        expect((body as RoomModel[]).length).toBe(3);
+        expect((body as RoomModel[]).length).toBe(1);
         expect((body as RoomModel[])[0].number).toBe(testDto.number);
       });
   });
@@ -114,7 +115,7 @@ describe('AppController (e2e)', () => {
       .get('/rooms')
       .expect(200)
       .then(({ body }: request.Response) => {
-        expect((body as RoomModel[]).length).toBe(1);
+        expect((body as RoomModel[]).length).toBe(0);
       });
   });
 

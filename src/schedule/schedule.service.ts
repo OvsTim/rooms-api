@@ -41,13 +41,4 @@ export class ScheduleService {
       .findByIdAndUpdate(new Types.ObjectId(id), schedule)
       .exec();
   }
-  async rawMongoQuery(roomId: string) {
-    const result = await this.scheduleModel.collection
-      .find({
-        roomId: new Types.ObjectId(roomId),
-      })
-      .toArray();
-    console.log('RAW MONGO RESULT:', result);
-    return result;
-  }
 }
