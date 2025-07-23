@@ -5,8 +5,11 @@ import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { disconnect, Types } from 'mongoose';
 import { CreateRoomDto } from '../src/rooms/dto/create-room.dto';
-import { RoomDocument } from '../src/rooms/rooms.model';
-import { ScheduleDocument } from '../src/schedule/schedule.model';
+import { RoomDocument, RoomModel } from '../src/rooms/rooms.model';
+import {
+  ScheduleDocument,
+  ScheduleModel,
+} from '../src/schedule/schedule.model';
 import {
   ROOM_SCHEDULED,
   SCHEDULE_NOT_FOUND,
@@ -113,6 +116,32 @@ describe('AppController (e2e)', () => {
       });
   });
 
+  test('/schedule/ (GET) - success', () => {
+    return request(app.getHttpServer())
+      .get('/schedule/' + createdId)
+      .expect(200)
+      .then(({ body }: request.Response) => {
+        expect((body as ScheduleDocument)._id).toBeDefined();
+      });
+  });
+
+  test('/schedule/all (GET) - success', () => {
+    return request(app.getHttpServer())
+      .get('/schedule/')
+      .expect(200)
+      .then(({ body }: request.Response) => {
+        expect((body as ScheduleModel[]).length).toBe(2);
+      });
+  });
+
+  test('/schedule/byRoom (GET) - success', () => {
+    return request(app.getHttpServer())
+      .get('/schedule/byRoom/' + createdRoomId)
+      .expect(200)
+      .then(({ body }: request.Response) => {
+        expect((body as ScheduleModel[]).length).toBe(2);
+      });
+  });
   // test('/schedule (PATCH) - fail', () => {
   //   return request(app.getHttpServer())
   //     .patch('/schedule/' + createdId)
