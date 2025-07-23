@@ -29,7 +29,7 @@ export class RoomsService {
     room: Partial<RoomModel>,
   ): Promise<RoomModel | null> {
     return this.roomModel
-      .findByIdAndUpdate(new Types.ObjectId(id), room)
+      .findByIdAndUpdate(new Types.ObjectId(id), room, { new: true })
       .exec();
   }
 }

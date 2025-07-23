@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -35,16 +36,16 @@ export class ScheduleController {
     const schedules = await this.scheduleService.getScheduleByRoomId(
       dto.roomId,
     );
-    if (schedules?.length === 0) {
-      return this.scheduleService.create(dto);
-    }
 
-    for (const schedule of schedules) {
-      if (areDatesEqual(schedule.date, dto.date)) {
-        throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
+    if (schedules && schedules.length > 0) {
+      for (const schedule of schedules) {
+        if (areDatesEqual(schedule.date, dto.date)) {
+          throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
+        }
       }
     }
 
+    // 4. Если конфликтов нет - создаём бронирование
     return await this.scheduleService.create(dto);
   }
 
@@ -61,14 +62,17 @@ export class ScheduleController {
   async getAllSchedules(): Promise<ScheduleModel[]> {
     return this.scheduleService.getAllSchedules();
   }
-
+  @Get('raw/:roomId')
+  async raw(@Param('roomId') roomId: string) {
+    return this.scheduleService.rawMongoQuery(roomId);
+  }
   @Delete(':id')
   async deleteSchedule(@Param('id') id: Types.ObjectId) {
-    const schedule = await this.scheduleService.delete(id);
+    const schedule = await this.scheduleService.getScheduleById(id);
     if (!schedule) {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
-    return schedule;
+    return this.scheduleService.delete(id);
   }
 
   @Patch(':id')
@@ -82,7 +86,9 @@ export class ScheduleController {
     }
 
     if (dto.roomId !== undefined) {
-      const room = await this.roomsService.getRoomById(dto.roomId);
+      const room = await this.roomsService.getRoomById(
+        new Types.ObjectId(dto.roomId),
+      );
       if (!room) {
         throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
       }
@@ -91,7 +97,7 @@ export class ScheduleController {
       const targetRoomId =
         dto.roomId !== undefined ? dto.roomId : schedule.roomId;
       const schedules = await this.scheduleService.getScheduleByRoomId(
-        targetRoomId, // Проверяем целевую комнату
+        new Types.ObjectId(targetRoomId), // Проверяем целевую комнату
       );
       for (const existingSchedule of schedules) {
         const targetRoomId =
@@ -110,7 +116,7 @@ export class ScheduleController {
     return this.scheduleService.editSchedule(id, dto);
   }
   @Get('byRoom/:roomId')
-  async get(@Param('roomId') id: Types.ObjectId) {
-    return this.scheduleService.getScheduleByRoomId(id);
+  async get(@Param('roomId') roomId: Types.ObjectId) {
+    return this.scheduleService.getScheduleByRoomId(roomId);
   }
 }

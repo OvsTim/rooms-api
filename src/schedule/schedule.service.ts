@@ -24,10 +24,8 @@ export class ScheduleService {
     return this.scheduleModel.find({}).exec();
   }
 
-  async getScheduleByRoomId(
-    id: Types.ObjectId,
-  ) {
-    return this.scheduleModel.find({ roomId: new Types.ObjectId(id) }).exec();
+  async getScheduleByRoomId(id: Types.ObjectId) {
+    return this.scheduleModel.find({ roomId: id }).exec();
   }
   async deleteScheduleByRoomId(id: Types.ObjectId) {
     return this.scheduleModel
@@ -42,5 +40,14 @@ export class ScheduleService {
     return this.scheduleModel
       .findByIdAndUpdate(new Types.ObjectId(id), schedule)
       .exec();
+  }
+  async rawMongoQuery(roomId: string) {
+    const result = await this.scheduleModel.collection
+      .find({
+        roomId: new Types.ObjectId(roomId),
+      })
+      .toArray();
+    console.log('RAW MONGO RESULT:', result);
+    return result;
   }
 }
