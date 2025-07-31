@@ -147,6 +147,12 @@ describe('AppController (e2e)', () => {
         expect((body as ScheduleModel[]).length).toBe(2);
       });
   });
+
+  test('/schedule/ (GET) - fail', () => {
+    return request(app.getHttpServer())
+      .get('/schedule/' + new Types.ObjectId().toHexString())
+      .expect(404)
+  });
   test('/schedule (PATCH) - success', () => {
     return request(app.getHttpServer())
       .patch('/schedule/' + createdId)
