@@ -18,6 +18,7 @@ import { ScheduleModel } from './schedule.model';
 import { areDatesEqual } from '../utils/dateUtils';
 import { ROOM_NOT_FOUND } from '../rooms/room-constants';
 import { Types } from 'mongoose';
+import { UpdateScheduleDto } from './dto/update-schedule.dto';
 
 @Controller('schedule')
 export class ScheduleController {
@@ -75,7 +76,7 @@ export class ScheduleController {
   @Patch(':id')
   async patch(
     @Param('id') id: Types.ObjectId,
-    @Body() dto: Partial<ScheduleModel>,
+    @Body() dto: UpdateScheduleDto,
   ) {
     const currentSchedules = await this.scheduleService.getAllSchedules();
     console.log('currentSchedules', currentSchedules);

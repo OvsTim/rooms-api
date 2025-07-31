@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ScheduleDocument, ScheduleModel } from './schedule.model';
 import { Model, Types } from 'mongoose';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
+import { UpdateScheduleDto } from './dto/update-schedule.dto';
 
 @Injectable()
 export class ScheduleService {
@@ -35,7 +36,7 @@ export class ScheduleService {
 
   async editSchedule(
     id: Types.ObjectId,
-    schedule: Partial<ScheduleModel>,
+    schedule: UpdateScheduleDto,
   ): Promise<ScheduleModel | null> {
     return this.scheduleModel
       .findByIdAndUpdate(new Types.ObjectId(id), schedule)
