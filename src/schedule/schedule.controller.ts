@@ -8,7 +8,7 @@ import {
   HttpStatus,
   Param,
   Patch,
-  Post,
+  Post, UsePipes, ValidationPipe,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { RoomsService } from '../rooms/rooms.service';
@@ -27,6 +27,7 @@ export class ScheduleController {
   ) {}
 
   @Post('create')
+  @UsePipes(ValidationPipe)
   async createSchedule(@Body() dto: CreateScheduleDto) {
     const room = await this.roomsService.getRoomById(dto.roomId);
     if (!room) {

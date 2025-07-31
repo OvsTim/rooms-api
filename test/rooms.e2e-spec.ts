@@ -36,7 +36,6 @@ describe('AppController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
     app.setGlobalPrefix('api');
-
   });
 
   test('/rooms/create (POST) - success', () => {
@@ -54,8 +53,14 @@ describe('AppController (e2e)', () => {
       .post('/api/rooms/create')
       .send(testWrongDto)
       .expect(500)
-      .then(({ body }: request.Response) => {
-      });
+      .then(({ body }: request.Response) => {});
+  });
+  test('/rooms/create (POST) - fail types', () => {
+    return request(app.getHttpServer())
+      .post('/api/rooms/create')
+      .send({ ...testDto, type: false })
+      .expect(400)
+      .then(({ body }: request.Response) => {});
   });
   test('/rooms (GET) - success', () => {
     return request(app.getHttpServer())
@@ -107,6 +112,12 @@ describe('AppController (e2e)', () => {
         statusCode: 404,
         message: ROOM_NOT_FOUND,
       });
+  });
+  test('/rooms/:id (PATCH) - fail types', () => {
+    return request(app.getHttpServer())
+      .patch('/api/rooms/' + new Types.ObjectId().toHexString())
+      .send({ ...editedDto, type: true })
+      .expect(400);
   });
 
   test('/rooms/:id (DELETE) - success', () => {

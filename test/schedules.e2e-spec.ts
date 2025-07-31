@@ -76,6 +76,8 @@ describe('AppController (e2e)', () => {
         expect(createdId).toBeDefined();
       });
   });
+
+
   test('/schedule/create (POST) - fail room not found', () => {
     return request(app.getHttpServer())
       .post('/api/schedule/create')
@@ -84,6 +86,13 @@ describe('AppController (e2e)', () => {
         statusCode: 404,
         message: ROOM_NOT_FOUND,
       });
+  });
+
+  test('/schedule/create (POST) - fail wrong date', () => {
+    return request(app.getHttpServer())
+      .post('/api/schedule/create')
+      .send({ date: false, roomId: new Types.ObjectId().toHexString() })
+      .expect(400);
   });
 
   test('/schedule/create (POST) - fail', () => {
