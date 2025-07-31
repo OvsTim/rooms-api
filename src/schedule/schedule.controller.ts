@@ -76,6 +76,10 @@ export class ScheduleController {
     @Param('id') id: Types.ObjectId,
     @Body() dto: Partial<ScheduleModel>,
   ) {
+    const currentSchedules = await this.scheduleService.getAllSchedules();
+    console.log('currentSchedules', currentSchedules);
+    console.log('dto', dto);
+
     const currentSchedule = await this.scheduleService.getScheduleById(id);
     if (!currentSchedule) {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);

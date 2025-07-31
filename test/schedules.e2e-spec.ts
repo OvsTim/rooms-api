@@ -142,15 +142,21 @@ describe('AppController (e2e)', () => {
         expect((body as ScheduleModel[]).length).toBe(2);
       });
   });
-  // test('/schedule (PATCH) - fail', () => {
-  //   return request(app.getHttpServer())
-  //     .patch('/schedule/' + createdId)
-  //     .send({ date: testDateSecond, roomId: createdRoomId })
-  //     .expect(409, {
-  //       statusCode: 409,
-  //       message: ROOM_SCHEDULED,
-  //     });
-  // });
+  test('/schedule (PATCH) - success', () => {
+    return request(app.getHttpServer())
+      .patch('/schedule/' + createdId)
+      .send({ date: testDateSecond, roomId: createdRoomIdSecond })
+      .expect(200);
+  });
+  test('/schedule (PATCH) - fail', () => {
+    return request(app.getHttpServer())
+      .patch('/schedule/' + createdIdSecond)
+      .send({ date: testDateSecond, roomId: createdRoomIdSecond })
+      .expect(409, {
+        statusCode: 409,
+        message: ROOM_SCHEDULED,
+      });
+  });
 
   test('/schedule (DELETE) - success', () => {
     return request(app.getHttpServer())
