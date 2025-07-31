@@ -47,7 +47,7 @@ describe('AppController (e2e)', () => {
     await app.init();
 
     await request(app.getHttpServer())
-      .post('/rooms/create')
+      .post('/api/rooms/create')
       .send(testRoomDto)
       .expect(201)
       .then(({ body }: request.Response) => {
@@ -56,7 +56,7 @@ describe('AppController (e2e)', () => {
       });
 
     await request(app.getHttpServer())
-      .post('/rooms/create')
+      .post('/api/rooms/create')
       .send(testRoomDtoSecond)
       .expect(201)
       .then(({ body }: request.Response) => {
@@ -67,7 +67,7 @@ describe('AppController (e2e)', () => {
 
   test('/schedule/create (POST) - success', () => {
     return request(app.getHttpServer())
-      .post('/schedule/create')
+      .post('/api/schedule/create')
       .send({ date: testDate, roomId: createdRoomId })
       .expect(201)
       .then(({ body }: request.Response) => {
@@ -77,7 +77,7 @@ describe('AppController (e2e)', () => {
   });
   test('/schedule/create (POST) - fail room not found', () => {
     return request(app.getHttpServer())
-      .post('/schedule/create')
+      .post('/api/schedule/create')
       .send({ date: testDate, roomId: new Types.ObjectId().toHexString() })
       .expect(404, {
         statusCode: 404,
@@ -87,7 +87,7 @@ describe('AppController (e2e)', () => {
 
   test('/schedule/create (POST) - fail', () => {
     return request(app.getHttpServer())
-      .post('/schedule/create')
+      .post('/api/schedule/create')
       .send({ date: testDate, roomId: createdRoomId })
       .expect(409, {
         statusCode: 409,
@@ -97,7 +97,7 @@ describe('AppController (e2e)', () => {
 
   test('/schedule/create (POST) - success', () => {
     return request(app.getHttpServer())
-      .post('/schedule/create')
+      .post('/api/schedule/create')
       .send({ date: testDateSecond, roomId: createdRoomId })
       .expect(201)
       .then(({ body }: request.Response) => {
@@ -108,7 +108,7 @@ describe('AppController (e2e)', () => {
 
   test('/schedule (POST) - fail', () => {
     return request(app.getHttpServer())
-      .post('/schedule/create')
+      .post('/api/schedule/create')
       .send({ date: testDate, roomId: createdRoomId })
       .expect(409, {
         statusCode: 409,
@@ -118,7 +118,7 @@ describe('AppController (e2e)', () => {
 
   test('/schedule/ (GET) - success', () => {
     return request(app.getHttpServer())
-      .get('/schedule/' + createdId)
+      .get('/api/schedule/' + createdId)
       .expect(200)
       .then(({ body }: request.Response) => {
         expect((body as ScheduleDocument)._id).toBeDefined();
@@ -126,7 +126,7 @@ describe('AppController (e2e)', () => {
   });
   test('/schedule/ (GET) - fail', () => {
     return request(app.getHttpServer())
-      .get('/schedule/' + new Types.ObjectId().toHexString())
+      .get('/api/schedule/' + new Types.ObjectId().toHexString())
       .expect(404)
   });
 
@@ -141,7 +141,7 @@ describe('AppController (e2e)', () => {
 
   test('/schedule/byRoom (GET) - success', () => {
     return request(app.getHttpServer())
-      .get('/schedule/byRoom/' + createdRoomId)
+      .get('/api/schedule/byRoom/' + createdRoomId)
       .expect(200)
       .then(({ body }: request.Response) => {
         expect((body as ScheduleModel[]).length).toBe(2);
@@ -150,18 +150,18 @@ describe('AppController (e2e)', () => {
 
   test('/schedule/ (GET) - fail', () => {
     return request(app.getHttpServer())
-      .get('/schedule/' + new Types.ObjectId().toHexString())
+      .get('/api/schedule/' + new Types.ObjectId().toHexString())
       .expect(404)
   });
   test('/schedule (PATCH) - success', () => {
     return request(app.getHttpServer())
-      .patch('/schedule/' + createdId)
+      .patch('/api/schedule/' + createdId)
       .send({ date: testDateSecond, roomId: createdRoomIdSecond })
       .expect(200);
   });
   test('/schedule (PATCH) - fail', () => {
     return request(app.getHttpServer())
-      .patch('/schedule/' + createdIdSecond)
+      .patch('/api/schedule/' + createdIdSecond)
       .send({ date: testDateSecond, roomId: createdRoomIdSecond })
       .expect(409, {
         statusCode: 409,
@@ -170,7 +170,7 @@ describe('AppController (e2e)', () => {
   });
   test('/schedule (PATCH) - wrong Room ID', () => {
     return request(app.getHttpServer())
-      .patch('/schedule/' + createdIdSecond)
+      .patch('/api/schedule/' + createdIdSecond)
       .send({
         date: testDateSecond,
         roomId: new Types.ObjectId().toHexString(),
@@ -182,7 +182,7 @@ describe('AppController (e2e)', () => {
   });
   test('/schedule (PATCH) - wrongID', () => {
     return request(app.getHttpServer())
-      .patch('/schedule/' + new Types.ObjectId().toHexString())
+      .patch('/api/schedule/' + new Types.ObjectId().toHexString())
       .send({ date: testDateSecond, roomId: createdRoomIdSecond })
       .expect(404, {
         statusCode: 404,
@@ -192,19 +192,19 @@ describe('AppController (e2e)', () => {
 
   test('/schedule (DELETE) - success', () => {
     return request(app.getHttpServer())
-      .delete('/schedule/' + createdId)
+      .delete('/api/schedule/' + createdId)
       .expect(200);
   });
 
   test('/schedule (DELETE) - success', () => {
     return request(app.getHttpServer())
-      .delete('/schedule/' + createdIdSecond)
+      .delete('/api/schedule/' + createdIdSecond)
       .expect(200);
   });
 
   test('/schedule (GET) - success deleted', () => {
     return request(app.getHttpServer())
-      .get('/schedule/' + createdId)
+      .get('/api/schedule/' + createdId)
       .expect(404, {
         statusCode: 404,
         message: SCHEDULE_NOT_FOUND,
@@ -213,7 +213,7 @@ describe('AppController (e2e)', () => {
 
   test('/schedule (DELETE) - fail', () => {
     return request(app.getHttpServer())
-      .delete('/schedule/' + new Types.ObjectId().toHexString())
+      .delete('/api/schedule/' + new Types.ObjectId().toHexString())
       .expect(404, {
         statusCode: 404,
         message: SCHEDULE_NOT_FOUND,
@@ -222,10 +222,10 @@ describe('AppController (e2e)', () => {
 
   afterAll(async () => {
     await request(app.getHttpServer())
-      .delete('/rooms/' + createdRoomId)
+      .delete('/api/rooms/' + createdRoomId)
       .expect(200);
     await request(app.getHttpServer())
-      .delete('/rooms/' + createdRoomIdSecond)
+      .delete('/api/rooms/' + createdRoomIdSecond)
       .expect(200);
     await disconnect();
   });

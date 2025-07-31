@@ -40,7 +40,7 @@ describe('AppController (e2e)', () => {
 
   test('/rooms/create (POST) - success', () => {
     return request(app.getHttpServer())
-      .post('/rooms/create')
+      .post('/api/rooms/create')
       .send(testDto)
       .expect(201)
       .then(({ body }: request.Response) => {
@@ -50,7 +50,7 @@ describe('AppController (e2e)', () => {
   });
   test('/rooms/create (POST) - fail', () => {
     return request(app.getHttpServer())
-      .post('/rooms/create')
+      .post('/api/rooms/create')
       .send(testWrongDto)
       .expect(500)
       .then(({ body }: request.Response) => {
@@ -58,7 +58,7 @@ describe('AppController (e2e)', () => {
   });
   test('/rooms (GET) - success', () => {
     return request(app.getHttpServer())
-      .get('/rooms')
+      .get('/api/rooms')
       .expect(200)
       .then(({ body }: request.Response) => {
         expect((body as RoomModel[]).length).toBe(1);
@@ -68,7 +68,7 @@ describe('AppController (e2e)', () => {
 
   test('/rooms/:id (GET) - success', () => {
     return request(app.getHttpServer())
-      .get('/rooms/' + createdId)
+      .get('/api/rooms/' + createdId)
       .expect(200)
       .then(({ body }: request.Response) => {
         expect((body as RoomModel).number).toBe(testDto.number);
@@ -79,7 +79,7 @@ describe('AppController (e2e)', () => {
 
   test('/rooms/:id (GET) - fail', () => {
     return request(app.getHttpServer())
-      .get('/rooms/' + new Types.ObjectId().toHexString())
+      .get('/api/rooms/' + new Types.ObjectId().toHexString())
       .expect(404, {
         statusCode: 404,
         message: ROOM_NOT_FOUND,
@@ -88,7 +88,7 @@ describe('AppController (e2e)', () => {
 
   test('/rooms/:id (PATCH) - success', () => {
     return request(app.getHttpServer())
-      .patch('/rooms/' + createdId)
+      .patch('/api/rooms/' + createdId)
       .send(editedDto)
       .expect(200)
       .then(({ body }: request.Response) => {
@@ -100,7 +100,7 @@ describe('AppController (e2e)', () => {
 
   test('/rooms/:id (PATCH) - fail', () => {
     return request(app.getHttpServer())
-      .patch('/rooms/' + new Types.ObjectId().toHexString())
+      .patch('/api/rooms/' + new Types.ObjectId().toHexString())
       .send(editedDto)
       .expect(404, {
         statusCode: 404,
@@ -110,13 +110,13 @@ describe('AppController (e2e)', () => {
 
   test('/rooms/:id (DELETE) - success', () => {
     return request(app.getHttpServer())
-      .delete('/rooms/' + createdId)
+      .delete('/api/rooms/' + createdId)
       .expect(200);
   });
 
   test('/rooms/:id (DELETE) - fail', () => {
     return request(app.getHttpServer())
-      .delete('/rooms/' + new Types.ObjectId().toHexString())
+      .delete('/api/rooms/' + new Types.ObjectId().toHexString())
       .expect(404, {
         statusCode: 404,
         message: ROOM_NOT_FOUND,
@@ -124,7 +124,7 @@ describe('AppController (e2e)', () => {
   });
   test('/rooms (GET) - empty', () => {
     return request(app.getHttpServer())
-      .get('/rooms')
+      .get('/api/rooms')
       .expect(200)
       .then(({ body }: request.Response) => {
         expect((body as RoomModel[]).length).toBe(0);
