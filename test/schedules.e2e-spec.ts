@@ -132,7 +132,7 @@ describe('AppController (e2e)', () => {
 
   test('/schedule/all (GET) - success', () => {
     return request(app.getHttpServer())
-      .get('/schedule/')
+      .get('/api/schedule/')
       .expect(200)
       .then(({ body }: request.Response) => {
         expect((body as ScheduleModel[]).length).toBe(2);
