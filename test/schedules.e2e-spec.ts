@@ -45,6 +45,7 @@ describe('AppController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+    app.setGlobalPrefix('api');
 
     await request(app.getHttpServer())
       .post('/api/rooms/create')
