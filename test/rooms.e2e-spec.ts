@@ -13,6 +13,10 @@ const testDto: CreateRoomDto = {
   hasSeaView: true,
   type: 'some room type',
 };
+const testWrongDto = {
+  number: '',
+  type: false,
+};
 let createdId: string;
 
 const editedDto: CreateRoomDto = {
@@ -42,6 +46,14 @@ describe('AppController (e2e)', () => {
       .then(({ body }: request.Response) => {
         createdId = (body as RoomDocument)._id.toString();
         expect(createdId).toBeDefined();
+      });
+  });
+  test('/rooms/create (POST) - fail', () => {
+    return request(app.getHttpServer())
+      .post('/rooms/create')
+      .send(testWrongDto)
+      .expect(500)
+      .then(({ body }: request.Response) => {
       });
   });
   test('/rooms (GET) - success', () => {

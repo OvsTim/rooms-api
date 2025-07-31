@@ -124,6 +124,11 @@ describe('AppController (e2e)', () => {
         expect((body as ScheduleDocument)._id).toBeDefined();
       });
   });
+  test('/schedule/ (GET) - fail', () => {
+    return request(app.getHttpServer())
+      .get('/schedule/' + new Types.ObjectId().toHexString())
+      .expect(404)
+  });
 
   test('/schedule/all (GET) - success', () => {
     return request(app.getHttpServer())
@@ -157,6 +162,27 @@ describe('AppController (e2e)', () => {
         message: ROOM_SCHEDULED,
       });
   });
+  test('/schedule (PATCH) - wrong Room ID', () => {
+    return request(app.getHttpServer())
+      .patch('/schedule/' + createdIdSecond)
+      .send({
+        date: testDateSecond,
+        roomId: new Types.ObjectId().toHexString(),
+      })
+      .expect(404, {
+        statusCode: 404,
+        message: ROOM_NOT_FOUND,
+      });
+  });
+  test('/schedule (PATCH) - wrongID', () => {
+    return request(app.getHttpServer())
+      .patch('/schedule/' + new Types.ObjectId().toHexString())
+      .send({ date: testDateSecond, roomId: createdRoomIdSecond })
+      .expect(404, {
+        statusCode: 404,
+        message: SCHEDULE_NOT_FOUND,
+      });
+  });
 
   test('/schedule (DELETE) - success', () => {
     return request(app.getHttpServer())
@@ -187,7 +213,6 @@ describe('AppController (e2e)', () => {
         message: SCHEDULE_NOT_FOUND,
       });
   });
-
 
   afterAll(async () => {
     await request(app.getHttpServer())
