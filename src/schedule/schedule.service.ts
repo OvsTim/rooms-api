@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ScheduleDocument, ScheduleModel } from './schedule.model';
 import { Model, Types } from 'mongoose';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
+import { UpdateScheduleDto } from './dto/update-schedule.dto';
 
 @Injectable()
 export class ScheduleService {
@@ -24,10 +25,8 @@ export class ScheduleService {
     return this.scheduleModel.find({}).exec();
   }
 
-  async getScheduleByRoomId(
-    id: Types.ObjectId,
-  ) {
-    return this.scheduleModel.find({ roomId: new Types.ObjectId(id) }).exec();
+  async getScheduleByRoomId(id: Types.ObjectId) {
+    return this.scheduleModel.find({ roomId: id }).exec();
   }
   async deleteScheduleByRoomId(id: Types.ObjectId) {
     return this.scheduleModel
@@ -37,7 +36,7 @@ export class ScheduleService {
 
   async editSchedule(
     id: Types.ObjectId,
-    schedule: Partial<ScheduleModel>,
+    schedule: UpdateScheduleDto,
   ): Promise<ScheduleModel | null> {
     return this.scheduleModel
       .findByIdAndUpdate(new Types.ObjectId(id), schedule)

@@ -1,10 +1,10 @@
 import { IsBoolean, IsNumber, IsString } from 'class-validator';
 
-export class CreateRoomDto {
+export class UpdateRoomDto {
   @IsNumber()
-  number: number;
+  number?: number;
   @IsString()
-  type: string;
+  type?: string;
   @IsBoolean()
-  hasSeaView: boolean;
+  hasSeaView?: boolean;
 }

@@ -1,9 +1,9 @@
 import { Types } from 'mongoose';
 import { IsDate, IsMongoId } from 'class-validator';
 
-export class CreateScheduleDto {
+export class UpdateScheduleDto {
   @IsMongoId()
-  roomId: Types.ObjectId;
+  roomId?: Types.ObjectId;
   @IsDate()
-  date: Date;
+  date?: Date;
 }

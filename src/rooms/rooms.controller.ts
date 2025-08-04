@@ -15,6 +15,7 @@ import { ROOM_NOT_FOUND } from './room-constants';
 import { RoomModel } from './rooms.model';
 import { ScheduleService } from '../schedule/schedule.service';
 import { Types } from 'mongoose';
+import { UpdateRoomDto } from './dto/update-room.dto';
 
 @Controller('rooms')
 export class RoomsController {
@@ -50,7 +51,7 @@ export class RoomsController {
   @Patch(':id')
   async patch(
     @Param('id') id: Types.ObjectId,
-    @Body() dto: Partial<RoomModel>,
+    @Body() dto: UpdateRoomDto,
   ) {
     const room = await this.roomsService.getRoomById(id);
     if (!room) {

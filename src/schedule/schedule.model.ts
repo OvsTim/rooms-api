@@ -4,8 +4,8 @@ import { HydratedDocument, Types } from 'mongoose';
 export type ScheduleDocument = HydratedDocument<ScheduleModel>;
 @Schema({ timestamps: true })
 export class ScheduleModel {
-  @Prop({ required: true })
-  roomId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'RoomModel', })
+  roomId: string;
   @Prop({ required: true })
   date: Date;
 }

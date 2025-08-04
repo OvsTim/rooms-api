@@ -13,7 +13,7 @@ import { ScheduleModule } from '../schedule/schedule.module';
       {
         name: RoomModel.name,
         schema: RoomSchema,
-        collection: 'Room',
+        collection: 'rooms',
       },
     ]),
   ],

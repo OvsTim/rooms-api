@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,7 +8,7 @@ import {
   HttpStatus,
   Param,
   Patch,
-  Post,
+  Post, UsePipes, ValidationPipe,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { RoomsService } from '../rooms/rooms.service';
@@ -17,6 +18,7 @@ import { ScheduleModel } from './schedule.model';
 import { areDatesEqual } from '../utils/dateUtils';
 import { ROOM_NOT_FOUND } from '../rooms/room-constants';
 import { Types } from 'mongoose';
+import { UpdateScheduleDto } from './dto/update-schedule.dto';
 
 @Controller('schedule')
 export class ScheduleController {
@@ -26,6 +28,7 @@ export class ScheduleController {
   ) {}
 
   @Post('create')
+  @UsePipes(ValidationPipe)
   async createSchedule(@Body() dto: CreateScheduleDto) {
     const room = await this.roomsService.getRoomById(dto.roomId);
     if (!room) {
@@ -35,13 +38,12 @@ export class ScheduleController {
     const schedules = await this.scheduleService.getScheduleByRoomId(
       dto.roomId,
     );
-    if (schedules?.length === 0) {
-      return this.scheduleService.create(dto);
-    }
 
-    for (const schedule of schedules) {
-      if (areDatesEqual(schedule.date, dto.date)) {
-        throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
+    if (schedules && schedules.length > 0) {
+      for (const schedule of schedules) {
+        if (areDatesEqual(schedule.date, dto.date)) {
+          throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
+        }
       }
     }
 
@@ -64,53 +66,61 @@ export class ScheduleController {
 
   @Delete(':id')
   async deleteSchedule(@Param('id') id: Types.ObjectId) {
-    const schedule = await this.scheduleService.delete(id);
+    const schedule = await this.scheduleService.getScheduleById(id);
     if (!schedule) {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
-    return schedule;
+    return this.scheduleService.delete(id);
   }
 
   @Patch(':id')
   async patch(
     @Param('id') id: Types.ObjectId,
-    @Body() dto: Partial<ScheduleModel>,
+    @Body() dto: UpdateScheduleDto,
   ) {
-    const schedule = await this.scheduleService.getScheduleById(id);
-    if (!schedule) {
+    const currentSchedules = await this.scheduleService.getAllSchedules();
+    console.log('currentSchedules', currentSchedules);
+    console.log('dto', dto);
+
+    const currentSchedule = await this.scheduleService.getScheduleById(id);
+    if (!currentSchedule) {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
     if (dto.roomId !== undefined) {
-      const room = await this.roomsService.getRoomById(dto.roomId);
-      if (!room) {
+      const roomExists = await this.roomsService.getRoomById(
+        new Types.ObjectId(dto.roomId),
+      );
+      if (!roomExists) {
         throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
       }
     }
+
+    const targetRoomId =
+      dto.roomId !== undefined ? dto.roomId : currentSchedule.roomId;
+    const targetDate = dto.date !== undefined ? dto.date : currentSchedule.date;
+
     if (dto.roomId !== undefined || dto.date !== undefined) {
-      const targetRoomId =
-        dto.roomId !== undefined ? dto.roomId : schedule.roomId;
-      const schedules = await this.scheduleService.getScheduleByRoomId(
-        targetRoomId, // Проверяем целевую комнату
+      const roomSchedules = await this.scheduleService.getScheduleByRoomId(
+        new Types.ObjectId(targetRoomId),
       );
-      for (const existingSchedule of schedules) {
-        const targetRoomId =
-          dto.roomId !== undefined ? dto.roomId : schedule.roomId;
-        if (
-          existingSchedule._id.toString() !== id.toString() &&
-          existingSchedule.roomId.toString() === targetRoomId.toString() &&
-          dto.date &&
-          areDatesEqual(existingSchedule.date, dto.date)
-        ) {
-          throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
-        }
+
+      const hasConflict = roomSchedules.some((schedule) => {
+        // Пропускаем текущее бронирование
+        if (schedule._id.equals(id)) return false;
+
+        return areDatesEqual(schedule.date, targetDate);
+      });
+
+      if (hasConflict) {
+        throw new HttpException(ROOM_SCHEDULED, HttpStatus.CONFLICT);
       }
     }
 
     return this.scheduleService.editSchedule(id, dto);
   }
   @Get('byRoom/:roomId')
-  async get(@Param('roomId') id: Types.ObjectId) {
-    return this.scheduleService.getScheduleByRoomId(id);
+  async get(@Param('roomId') roomId: Types.ObjectId) {
+    return this.scheduleService.getScheduleByRoomId(roomId);
   }
 }
