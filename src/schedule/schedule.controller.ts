@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -24,6 +23,8 @@ import { Types } from 'mongoose';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../decorators/roles.decorator';
+import { UserEnum } from '../users/users.model';
 
 @UsePipes(new ValidationPipe())
 @Controller('schedule')
@@ -36,6 +37,7 @@ export class ScheduleController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('create')
   @UsePipes(ValidationPipe)
+  @Roles(UserEnum.USER)
   async createSchedule(@Body() dto: CreateScheduleDto) {
     const room = await this.roomsService.getRoomById(dto.roomId);
     if (!room) {
@@ -72,6 +74,7 @@ export class ScheduleController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserEnum.USER)
   @Delete(':id')
   async deleteSchedule(@Param('id') id: Types.ObjectId) {
     const schedule = await this.scheduleService.getScheduleById(id);
@@ -83,10 +86,7 @@ export class ScheduleController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
-  async patch(
-    @Param('id') id: Types.ObjectId,
-    @Body() dto: UpdateScheduleDto,
-  ) {
+  async patch(@Param('id') id: Types.ObjectId, @Body() dto: UpdateScheduleDto) {
     const currentSchedules = await this.scheduleService.getAllSchedules();
     console.log('currentSchedules', currentSchedules);
     console.log('dto', dto);
