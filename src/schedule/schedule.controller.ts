@@ -8,7 +8,10 @@ import {
   HttpStatus,
   Param,
   Patch,
-  Post, UsePipes, ValidationPipe,
+  Post,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { RoomsService } from '../rooms/rooms.service';
@@ -19,7 +22,9 @@ import { areDatesEqual } from '../utils/dateUtils';
 import { ROOM_NOT_FOUND } from '../rooms/room-constants';
 import { Types } from 'mongoose';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 
+@UsePipes(new ValidationPipe())
 @Controller('schedule')
 export class ScheduleController {
   constructor(
@@ -27,6 +32,7 @@ export class ScheduleController {
     private readonly roomsService: RoomsService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post('create')
   @UsePipes(ValidationPipe)
   async createSchedule(@Body() dto: CreateScheduleDto) {
@@ -64,6 +70,7 @@ export class ScheduleController {
     return this.scheduleService.getAllSchedules();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteSchedule(@Param('id') id: Types.ObjectId) {
     const schedule = await this.scheduleService.getScheduleById(id);
@@ -73,6 +80,7 @@ export class ScheduleController {
     return this.scheduleService.delete(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async patch(
     @Param('id') id: Types.ObjectId,
