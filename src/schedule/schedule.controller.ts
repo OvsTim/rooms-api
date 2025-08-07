@@ -85,6 +85,7 @@ export class ScheduleController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserEnum.USER)
   @Patch(':id')
   async patch(@Param('id') id: Types.ObjectId, @Body() dto: UpdateScheduleDto) {
     const currentSchedules = await this.scheduleService.getAllSchedules();

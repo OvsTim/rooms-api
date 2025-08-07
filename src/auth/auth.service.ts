@@ -50,7 +50,11 @@ export class AuthService {
   }
 
   async login(email: string) {
-    const payload = { email };
+    const user = await this.findUserByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException(USER_NOT_FOUND_ERROR);
+    }
+    const payload = { email, role: user.role };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
