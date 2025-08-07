@@ -23,6 +23,7 @@ import { ROOM_NOT_FOUND } from '../rooms/room-constants';
 import { Types } from 'mongoose';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @UsePipes(new ValidationPipe())
 @Controller('schedule')
@@ -32,7 +33,7 @@ export class ScheduleController {
     private readonly roomsService: RoomsService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('create')
   @UsePipes(ValidationPipe)
   async createSchedule(@Body() dto: CreateScheduleDto) {
@@ -70,7 +71,7 @@ export class ScheduleController {
     return this.scheduleService.getAllSchedules();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   async deleteSchedule(@Param('id') id: Types.ObjectId) {
     const schedule = await this.scheduleService.getScheduleById(id);
@@ -80,7 +81,7 @@ export class ScheduleController {
     return this.scheduleService.delete(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
   async patch(
     @Param('id') id: Types.ObjectId,

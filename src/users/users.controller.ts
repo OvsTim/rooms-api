@@ -14,6 +14,7 @@ import { USER_NOT_FOUND } from './users.constants';
 import { UserModel } from './users.model';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @UsePipes(new ValidationPipe())
 @Controller('users')
@@ -33,7 +34,7 @@ export class UsersController {
     return this.userService.getAllUsers();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   async deleteUser(@Param('id') id: Types.ObjectId) {
     const user = await this.userService.getById(id);
@@ -43,7 +44,7 @@ export class UsersController {
     return this.userService.deleteUser(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
   async patch(@Param('id') id: Types.ObjectId, @Body() dto: UpdateUserDto) {
     const user = await this.userService.getById(id);

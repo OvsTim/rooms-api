@@ -22,6 +22,7 @@ import { UpdateRoomDto } from './dto/update-room.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { Roles } from '../decorators/roles.decorator';
 import { UserEnum } from '../users/users.model';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @UsePipes(new ValidationPipe())
 @Controller('rooms')
@@ -32,7 +33,7 @@ export class RoomsController {
   ) {}
 
   @Roles(UserEnum.ADMIN)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('create')
   async createRoom(@Body() createRoomDto: CreateRoomDto) {
     return this.roomsService.create(createRoomDto);
@@ -52,7 +53,7 @@ export class RoomsController {
   }
 
   @Roles(UserEnum.ADMIN)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   async deleteRoom(@Param('id') id: Types.ObjectId) {
     const room = await this.roomsService.delete(id);
@@ -63,7 +64,7 @@ export class RoomsController {
   }
 
   @Roles(UserEnum.ADMIN)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
   async patch(@Param('id') id: Types.ObjectId, @Body() dto: UpdateRoomDto) {
     const room = await this.roomsService.getRoomById(id);
