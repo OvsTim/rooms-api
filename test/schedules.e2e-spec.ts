@@ -15,6 +15,7 @@ import {
   SCHEDULE_NOT_FOUND,
 } from '../src/schedule/schedule-constants';
 import { ROOM_NOT_FOUND } from '../src/rooms/room-constants';
+import { AuthDto } from '../src/auth/dto/auth.dto';
 
 const testRoomDto: CreateRoomDto = {
   number: 5,
@@ -27,6 +28,10 @@ const testRoomDtoSecond: CreateRoomDto = {
   hasSeaView: false,
   type: 'some room type other',
 };
+const loginDto: AuthDto = {
+  login: 'test@test.ru',
+  password: '1',
+};
 
 const testDate = new Date('1995-12-17T03:24:00');
 const testDateSecond = new Date('1995-12-18T03:24:00');
@@ -34,6 +39,7 @@ let createdRoomId: string;
 let createdRoomIdSecond: string;
 let createdId: string;
 let createdIdSecond: string;
+let token: string;
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
@@ -46,9 +52,15 @@ describe('AppController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
     app.setGlobalPrefix('api');
+    const res = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginDto);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    token = res.body.access_token;
 
     await request(app.getHttpServer())
       .post('/api/rooms/create')
+      .set('Authorization', 'Bearer ' + token)
       .send(testRoomDto)
       .expect(201)
       .then(({ body }: request.Response) => {
@@ -58,6 +70,7 @@ describe('AppController (e2e)', () => {
 
     await request(app.getHttpServer())
       .post('/api/rooms/create')
+      .set('Authorization', 'Bearer ' + token)
       .send(testRoomDtoSecond)
       .expect(201)
       .then(({ body }: request.Response) => {
@@ -69,6 +82,7 @@ describe('AppController (e2e)', () => {
   test('/schedule/create (POST) - success', () => {
     return request(app.getHttpServer())
       .post('/api/schedule/create')
+      .set('Authorization', 'Bearer ' + token)
       .send({ date: testDate, roomId: createdRoomId })
       .expect(201)
       .then(({ body }: request.Response) => {
@@ -81,6 +95,7 @@ describe('AppController (e2e)', () => {
   test('/schedule/create (POST) - fail room not found', () => {
     return request(app.getHttpServer())
       .post('/api/schedule/create')
+      .set('Authorization', 'Bearer ' + token)
       .send({ date: testDate, roomId: new Types.ObjectId().toHexString() })
       .expect(404, {
         statusCode: 404,
@@ -91,6 +106,7 @@ describe('AppController (e2e)', () => {
   test('/schedule/create (POST) - fail wrong date', () => {
     return request(app.getHttpServer())
       .post('/api/schedule/create')
+      .set('Authorization', 'Bearer ' + token)
       .send({ date: false, roomId: new Types.ObjectId().toHexString() })
       .expect(400);
   });
@@ -98,6 +114,7 @@ describe('AppController (e2e)', () => {
   test('/schedule/create (POST) - fail', () => {
     return request(app.getHttpServer())
       .post('/api/schedule/create')
+      .set('Authorization', 'Bearer ' + token)
       .send({ date: testDate, roomId: createdRoomId })
       .expect(409, {
         statusCode: 409,
@@ -108,6 +125,7 @@ describe('AppController (e2e)', () => {
   test('/schedule/create (POST) - success', () => {
     return request(app.getHttpServer())
       .post('/api/schedule/create')
+      .set('Authorization', 'Bearer ' + token)
       .send({ date: testDateSecond, roomId: createdRoomId })
       .expect(201)
       .then(({ body }: request.Response) => {
@@ -119,6 +137,7 @@ describe('AppController (e2e)', () => {
   test('/schedule (POST) - fail', () => {
     return request(app.getHttpServer())
       .post('/api/schedule/create')
+      .set('Authorization', 'Bearer ' + token)
       .send({ date: testDate, roomId: createdRoomId })
       .expect(409, {
         statusCode: 409,
@@ -166,12 +185,14 @@ describe('AppController (e2e)', () => {
   test('/schedule (PATCH) - success', () => {
     return request(app.getHttpServer())
       .patch('/api/schedule/' + createdId)
+      .set('Authorization', 'Bearer ' + token)
       .send({ date: testDateSecond, roomId: createdRoomIdSecond })
       .expect(200);
   });
   test('/schedule (PATCH) - fail', () => {
     return request(app.getHttpServer())
       .patch('/api/schedule/' + createdIdSecond)
+      .set('Authorization', 'Bearer ' + token)
       .send({ date: testDateSecond, roomId: createdRoomIdSecond })
       .expect(409, {
         statusCode: 409,
@@ -181,6 +202,7 @@ describe('AppController (e2e)', () => {
   test('/schedule (PATCH) - wrong Room ID', () => {
     return request(app.getHttpServer())
       .patch('/api/schedule/' + createdIdSecond)
+      .set('Authorization', 'Bearer ' + token)
       .send({
         date: testDateSecond,
         roomId: new Types.ObjectId().toHexString(),
@@ -193,6 +215,7 @@ describe('AppController (e2e)', () => {
   test('/schedule (PATCH) - wrongID', () => {
     return request(app.getHttpServer())
       .patch('/api/schedule/' + new Types.ObjectId().toHexString())
+      .set('Authorization', 'Bearer ' + token)
       .send({ date: testDateSecond, roomId: createdRoomIdSecond })
       .expect(404, {
         statusCode: 404,
@@ -203,12 +226,14 @@ describe('AppController (e2e)', () => {
   test('/schedule (DELETE) - success', () => {
     return request(app.getHttpServer())
       .delete('/api/schedule/' + createdId)
+      .set('Authorization', 'Bearer ' + token)
       .expect(200);
   });
 
   test('/schedule (DELETE) - success', () => {
     return request(app.getHttpServer())
       .delete('/api/schedule/' + createdIdSecond)
+      .set('Authorization', 'Bearer ' + token)
       .expect(200);
   });
 
@@ -224,6 +249,7 @@ describe('AppController (e2e)', () => {
   test('/schedule (DELETE) - fail', () => {
     return request(app.getHttpServer())
       .delete('/api/schedule/' + new Types.ObjectId().toHexString())
+      .set('Authorization', 'Bearer ' + token)
       .expect(404, {
         statusCode: 404,
         message: SCHEDULE_NOT_FOUND,
