@@ -42,4 +42,46 @@ export class ScheduleService {
       .findByIdAndUpdate(new Types.ObjectId(id), schedule)
       .exec();
   }
+  async getRoomBookingStats(year: number, month: number) {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59, 999); // Последний день месяца
+
+    return this.scheduleModel.aggregate([
+      {
+        $match: {
+          date: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'rooms', // Название коллекции комнат
+          localField: 'roomId',
+          foreignField: '_id',
+          as: 'room',
+        },
+      },
+      {
+        $unwind: '$room',
+      },
+      {
+        $group: {
+          _id: '$room.number',
+          bookingCount: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          roomNumber: '$_id',
+          bookingCount: 1,
+          _id: 0,
+        },
+      },
+      {
+        $sort: { bookingCount: -1 },
+      },
+    ]);
+  }
 }

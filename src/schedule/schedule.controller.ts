@@ -11,6 +11,7 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { RoomsService } from '../rooms/rooms.service';
@@ -132,5 +133,14 @@ export class ScheduleController {
   @Get('byRoom/:roomId')
   async get(@Param('roomId') roomId: Types.ObjectId) {
     return this.scheduleService.getScheduleByRoomId(roomId);
+  }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserEnum.ADMIN)
+  @Get('room-bookings')
+  async getRoomBookingStats(
+    @Query('year') year: number,
+    @Query('month') month: number,
+  ) {
+    return this.scheduleService.getRoomBookingStats(year, month);
   }
 }
