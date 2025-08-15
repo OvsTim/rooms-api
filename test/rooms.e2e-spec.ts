@@ -7,6 +7,7 @@ import mongoose, { disconnect, Types } from 'mongoose';
 import { CreateRoomDto } from '../src/rooms/dto/create-room.dto';
 import { RoomDocument, RoomModel } from '../src/rooms/rooms.model';
 import { ROOM_NOT_FOUND } from '../src/rooms/room-constants';
+import { AuthDto } from '../src/auth/dto/auth.dto';
 
 const testDto: CreateRoomDto = {
   number: 5,
@@ -24,10 +25,14 @@ const editedDto: CreateRoomDto = {
   hasSeaView: false,
   type: 'some room type new',
 };
+const loginDto: AuthDto = {
+  login: 'test@test.ru',
+  password: '1',
+};
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
-
+  let token: string;
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -36,11 +41,17 @@ describe('AppController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
     app.setGlobalPrefix('api');
+    const res = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginDto);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    token = res.body.access_token;
   });
 
   test('/rooms/create (POST) - success', () => {
     return request(app.getHttpServer())
       .post('/api/rooms/create')
+      .set('Authorization', 'Bearer ' + token)
       .send(testDto)
       .expect(201)
       .then(({ body }: request.Response) => {
@@ -51,6 +62,7 @@ describe('AppController (e2e)', () => {
   test('/rooms/create (POST) - fail', () => {
     return request(app.getHttpServer())
       .post('/api/rooms/create')
+      .set('Authorization', 'Bearer ' + token)
       .send(testWrongDto)
       .expect(500)
       .then(({ body }: request.Response) => {});
@@ -58,6 +70,7 @@ describe('AppController (e2e)', () => {
   test('/rooms/create (POST) - fail types', () => {
     return request(app.getHttpServer())
       .post('/api/rooms/create')
+      .set('Authorization', 'Bearer ' + token)
       .send({ ...testDto, type: false })
       .expect(400)
       .then(({ body }: request.Response) => {});
@@ -95,6 +108,7 @@ describe('AppController (e2e)', () => {
   test('/rooms/:id (PATCH) - success', () => {
     return request(app.getHttpServer())
       .patch('/api/rooms/' + createdId)
+      .set('Authorization', 'Bearer ' + token)
       .send(editedDto)
       .expect(200)
       .then(({ body }: request.Response) => {
@@ -107,6 +121,7 @@ describe('AppController (e2e)', () => {
   test('/rooms/:id (PATCH) - fail', () => {
     return request(app.getHttpServer())
       .patch('/api/rooms/' + new Types.ObjectId().toHexString())
+      .set('Authorization', 'Bearer ' + token)
       .send(editedDto)
       .expect(404, {
         statusCode: 404,
@@ -116,6 +131,7 @@ describe('AppController (e2e)', () => {
   test('/rooms/:id (PATCH) - fail types', () => {
     return request(app.getHttpServer())
       .patch('/api/rooms/' + new Types.ObjectId().toHexString())
+      .set('Authorization', 'Bearer ' + token)
       .send({ ...editedDto, type: true })
       .expect(400);
   });
@@ -123,12 +139,14 @@ describe('AppController (e2e)', () => {
   test('/rooms/:id (DELETE) - success', () => {
     return request(app.getHttpServer())
       .delete('/api/rooms/' + createdId)
+      .set('Authorization', 'Bearer ' + token)
       .expect(200);
   });
 
   test('/rooms/:id (DELETE) - fail', () => {
     return request(app.getHttpServer())
       .delete('/api/rooms/' + new Types.ObjectId().toHexString())
+      .set('Authorization', 'Bearer ' + token)
       .expect(404, {
         statusCode: 404,
         message: ROOM_NOT_FOUND,

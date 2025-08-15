@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,7 +7,11 @@ import {
   HttpStatus,
   Param,
   Patch,
-  Post, UsePipes, ValidationPipe,
+  Post,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { RoomsService } from '../rooms/rooms.service';
@@ -19,7 +22,12 @@ import { areDatesEqual } from '../utils/dateUtils';
 import { ROOM_NOT_FOUND } from '../rooms/room-constants';
 import { Types } from 'mongoose';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../decorators/roles.decorator';
+import { UserEnum } from '../users/users.model';
 
+@UsePipes(new ValidationPipe())
 @Controller('schedule')
 export class ScheduleController {
   constructor(
@@ -27,8 +35,10 @@ export class ScheduleController {
     private readonly roomsService: RoomsService,
   ) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('create')
   @UsePipes(ValidationPipe)
+  @Roles(UserEnum.USER)
   async createSchedule(@Body() dto: CreateScheduleDto) {
     const room = await this.roomsService.getRoomById(dto.roomId);
     if (!room) {
@@ -64,6 +74,8 @@ export class ScheduleController {
     return this.scheduleService.getAllSchedules();
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserEnum.USER)
   @Delete(':id')
   async deleteSchedule(@Param('id') id: Types.ObjectId) {
     const schedule = await this.scheduleService.getScheduleById(id);
@@ -73,11 +85,10 @@ export class ScheduleController {
     return this.scheduleService.delete(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserEnum.USER)
   @Patch(':id')
-  async patch(
-    @Param('id') id: Types.ObjectId,
-    @Body() dto: UpdateScheduleDto,
-  ) {
+  async patch(@Param('id') id: Types.ObjectId, @Body() dto: UpdateScheduleDto) {
     const currentSchedules = await this.scheduleService.getAllSchedules();
     console.log('currentSchedules', currentSchedules);
     console.log('dto', dto);
@@ -122,5 +133,14 @@ export class ScheduleController {
   @Get('byRoom/:roomId')
   async get(@Param('roomId') roomId: Types.ObjectId) {
     return this.scheduleService.getScheduleByRoomId(roomId);
+  }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserEnum.ADMIN)
+  @Get('room-bookings')
+  async getRoomBookingStats(
+    @Query('year') year: number,
+    @Query('month') month: number,
+  ) {
+    return this.scheduleService.getRoomBookingStats(year, month);
   }
 }
