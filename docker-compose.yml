@@ -4,7 +4,7 @@ services:
   nest-rooms.mongo:
     image: mongo
     restart: always
-    container_name: tnest-rooms.mongo
+    container_name: nest-rooms.mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin
