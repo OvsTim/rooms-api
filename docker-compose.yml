@@ -13,6 +13,8 @@ services:
     volumes:
       - ./mongo-data:/data/db
     command: --wiredTigerCacheSizeGB 1.5
+    networks:
+      - mongo_network
 
   nest-rooms:
     image: nest-rooms:latest
