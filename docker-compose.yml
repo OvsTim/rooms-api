@@ -26,6 +26,8 @@ services:
       - ./.env:/opt/app/.env
     networks:
       - mongo_network
+    depends_on:
+      - nest-rooms.mongo
 
 networks:
   mongo_network:
