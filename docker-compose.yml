@@ -16,7 +16,7 @@ services:
 
   nest-rooms:
     image: nest-rooms:latest
-    container_name: top-api
+    container_name: nest-rooms
     restart: always
     ports:
       - '3000:3000'
