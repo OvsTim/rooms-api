@@ -25,7 +25,9 @@ import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
-import { UserEnum } from '../users/users.model';
+import { UserEnum, UserModel } from '../users/users.model';
+import { User } from '../decorators/user-email.decorator';
+import { TelegramService } from '../telegram/telegram.service';
 
 @UsePipes(new ValidationPipe())
 @Controller('schedule')
@@ -33,6 +35,7 @@ export class ScheduleController {
   constructor(
     private readonly scheduleService: ScheduleService,
     private readonly roomsService: RoomsService,
+    private readonly telegramService: TelegramService,
   ) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -59,6 +62,17 @@ export class ScheduleController {
 
     return await this.scheduleService.create(dto);
   }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post('create/notify')
+  @UsePipes(ValidationPipe)
+  @Roles(UserEnum.USER)
+  async createScheduleNotify(
+    @User() user: UserModel,
+    @Body() dto: CreateScheduleDto,
+  ) {
+    const message = `Новое бронирование\nИмя: ${user.name}\nТелефон: ${user.phone}\nДата: ${dto.date.toISOString()}\nИД комнаты: ${dto.roomId.toString()}`;
+    return await this.telegramService.sendMessage(message);
+  }
 
   @Get(':id')
   async getSchedule(@Param('id') id: Types.ObjectId) {
@@ -83,6 +97,16 @@ export class ScheduleController {
       throw new HttpException(SCHEDULE_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     return this.scheduleService.delete(id);
+  }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserEnum.USER)
+  @Delete('notify/:id')
+  async deleteScheduleNotify(
+    @User() user: UserModel,
+    @Param('id') id: Types.ObjectId,
+  ) {
+    const message = `Отмена бронирования\nИД: ${id.toString()}\nИмя: ${user.name}\nТелефон: ${user.phone}`;
+    return this.telegramService.sendMessage(message);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
