@@ -1,4 +1,5 @@
 version: '3.9'
+
 services:
   nest-rooms.mongo:
     image: mongo
@@ -8,8 +9,26 @@ services:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin
     ports:
-      - 27017:27017
-
+      - '27017:27017'
     volumes:
       - ./mongo-data:/data/db
     command: --wiredTigerCacheSizeGB 1.5
+    networks:
+      - mongo_network
+
+  nest-rooms:
+    image: nest-rooms:latest
+    container_name: nest-rooms
+    restart: always
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./.env:/opt/app/.env
+    networks:
+      - mongo_network
+    depends_on:
+      - nest-rooms.mongo
+
+networks:
+  mongo_network:
+    driver: bridge
